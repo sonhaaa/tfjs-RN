@@ -1,21 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import * as Camera from "expo-camera";
+import React from "react";
+
+import { LoadingView } from "./src/LoadingView";
+import { ModelView } from "./src/ModelView";
+import { PosenetView } from "./src/PosenetView";
+import { useTensorFlowLoaded } from "./src/useTensorFlow";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  const isLoaded = useTensorFlowLoaded();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  const [hasPermission, setHasPermission] = React.useState(null);
+  const [type, setType] = React.useState(Camera.Constants.Type.back);
+
+
+  React.useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+
+  if (!hasPermission) {
+    return <LoadingView>Camera permission is required to continue</LoadingView>;
+  }
+  if (!isLoaded) {
+    return <LoadingView>Loading TensorFlow</LoadingView>;
+  }
+
+  return <PosenetView />;
+}
