@@ -1,18 +1,15 @@
 import * as posenet from '@tensorflow-models/posenet'
-import * as tf from '@tensorflow/tfjs'
 import { Camera } from 'expo-camera';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { CustomTensorCamera } from './CustomTensorCamera';
 import { LoadingView } from './LoadingView';
 import { KeypointList } from './KeypointList';
-import { useTensorFlowCustomModel, useTensorFlowModel } from './useTensorFlow';
+import { useTensorFlowModel } from './useTensorFlow';
 
 export function PosenetView() {
     const model = useTensorFlowModel(posenet);
-
-    // const [positions, setPositions] = useState([])
     const [keypoints, setKeypoints] = useState([])
 
     if (!model) {
@@ -42,7 +39,7 @@ function ModelCamera({ model, setKeypoints }) {
     }, []);
 
     const onReady = React.useCallback(
-        (images, updatePreview, gl) => {
+        (images) => {
             const loop = async () => {
                 const nextImageTensor = images.next().value
                 const pose = await model.estimateSinglePose(nextImageTensor)
